@@ -1,0 +1,6 @@
+{
+    "mcp": {
+        "command": "python mcp_server.py",
+        "name": "patchevergreen-mcp"
+    }
+}
