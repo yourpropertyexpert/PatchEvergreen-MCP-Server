@@ -1,6 +1,18 @@
 # PatchEvergreen MCP Server
 
-This is a Model Context Protocol (MCP) server that interfaces with the PatchEvergreen API to fetch issues for libraries. It uses FastMCP for proper MCP implementation.
+This is a Model Context Protocol (MCP) server that interfaces with the PatchEvergreen API to fetch issues for breaking changes for libraries. It uses FastMCP for proper MCP implementation.
+
+Please note that libraries are named as written in their respective ecosystem tools, so as you would type them in files like:
+
+- composer.json (php)
+- requirements.txt (python)
+- manifest.json (Javascript)
+- gemfile (Ruby)
+- package.json (Javascript)
+- cargo.toml (Rust)
+- libs.versions.toml (Java)
+- pom.xml (Java)
+- build.gradle.kts (Kotlin)
 
 ## Setup
 
