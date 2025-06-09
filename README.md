@@ -16,28 +16,20 @@ Please note that libraries are named as written in their respective ecosystem to
 
 ## Setup
 
-1. Install the required dependencies:
+This is a stdio server that assumes you have a working copy of Python 3 installed on your machine.
+
+Install the required dependencies:
 ```bash
 pip3 install -r requirements.txt
 ```
+[If you are using tools like venv or Docker to run Python, you will need to configure them in your normal way.]
+
 
 ## Using with Cursor
 
-This server is designed to be used as a stdio MCP server, typically launched and managed by the Cursor editor. You do not need to run it manually or specify a port.
+Once installed, this server is designed to be used as a stdio MCP server, typically launched and managed by the Cursor editor. You do not need to run it manually or specify a port.
 
-To configure Cursor to use this MCP server, create a `.cursor` file in your project root with the following content:
-
-```json
-{
-  "mcp": {
-    "server": "python3 mcp_server.py"
-  }
-}
-```
-
-Cursor will automatically launch the server as a stdio process when needed.
-
-## MCP Integration with Cursor
+![MCP.png](./MCP.png)
 
 Cursor automatically communicates with this MCP server over stdio when you invoke MCP features (such as asking for issues for a library) within the editor. No manual requests or HTTP endpoints are needed.
 
