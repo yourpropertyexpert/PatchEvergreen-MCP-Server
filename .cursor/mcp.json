@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "python-mcp-server": {
+      "command": "python3",
+      "args": ["/Users/markharrison/Desktop/github.nosync/PatchEvergreen-MCP-Server/mcp_server.py"],
+      "env": {}
+    }
+  }
+}

@@ -9,49 +9,53 @@ This is a Model Context Protocol (MCP) server that interfaces with the PatchEver
 pip3 install -r requirements.txt
 ```
 
-2. Create a `.env` file (optional) to configure the server:
-```bash
-PORT=8080  # Default port is 8080
+## Using with Cursor
+
+This server is designed to be used as a stdio MCP server, typically launched and managed by the Cursor editor. You do not need to run it manually or specify a port.
+
+To configure Cursor to use this MCP server, create a `.cursor` file in your project root with the following content:
+
+```json
+{
+  "mcp": {
+    "server": "python3 mcp_server.py"
+  }
+}
 ```
 
-## Running the Server
+Cursor will automatically launch the server as a stdio process when needed.
 
-Start the server with:
-```bash
-python3 mcp_server.py
+## MCP Integration with Cursor
+
+Cursor automatically communicates with this MCP server over stdio when you invoke MCP features (such as asking for issues for a library) within the editor. No manual requests or HTTP endpoints are needed.
+
+### Configuring MCP Server with .cursor/mcp.json
+
+To configure Cursor to use this MCP server, add a `.cursor/mcp.json` file to your project root with the following content.
+
+```json
+{
+  "mcpServers": {
+    "python-mcp-server": {
+      "command": "python3",
+      "args": ["/{path_to_this_repo}/mcp_server.py"],
+      "env": {}
+    }
+  }
+}
 ```
 
-The server will start on `http://localhost:8080` by default.
+- `mcpServers`: A mapping of server names to their configuration.
+- `python-mcp-server`: The name for this MCP server configuration (you can choose any name).
+- `command`: The executable to launch the server (here, `python3`).
+- `args`: Arguments to pass to the command (the path to your `mcp_server.py`).
+- `env`: (Optional) Environment variables to set when launching the server.
+
+Once this file is in place, Cursor will automatically launch and manage the MCP server as needed. Simply use MCP features in Cursor, and all communication and error handling will be managed automatically.
 
 ## MCP Endpoint
 
 The server implements the Model Context Protocol (MCP) standard using FastMCP. It automatically handles all MCP-specific communication, including streaming responses.
-
-**Example Request:**
-```bash
-curl -X POST http://localhost:8080/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "messages": [
-      {
-        "role": "user",
-        "content": "get issues for library example in en"
-      }
-    ]
-  }'
-```
-
-**Example Response:**
-```json
-{
-    "messages": [
-        {
-            "role": "assistant",
-            "content": "{\"status\":\"success\",\"data\":[...]}"
-        }
-    ]
-}
-```
 
 ## Error Handling
 
