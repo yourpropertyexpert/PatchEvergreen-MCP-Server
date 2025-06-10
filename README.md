@@ -1,6 +1,6 @@
 # PatchEvergreen MCP Server
 
-This is a Model Context Protocol (MCP) server that interfaces with the PatchEvergreen API to fetch issues for breaking changes for libraries. It uses FastMCP for proper MCP implementation.
+This is a lightweight Model Context Protocol (MCP) server that interfaces with the PatchEvergreen API to fetch issues for breaking changes for libraries. It uses FastMCP for proper MCP implementation. It does not (currently) support API access tokens, so all accesses are "slow" requests into that API.
 
 Please note that libraries are named as written in their respective ecosystem tools, so as you would type them in files like:
 
@@ -16,13 +16,19 @@ Please note that libraries are named as written in their respective ecosystem to
 
 ## Setup
 
-This is a stdio server that assumes you have a working copy of Python 3 installed on your machine.
+The file mcp_server is a stdio server that assumes you have a working copy of Python 3 installed on your machine.
 
 Install the required dependencies:
 ```bash
 pip3 install -r requirements.txt
 ```
 [If you are using tools like venv or Docker to run Python, you will need to configure them in your normal way.]
+
+## SSE
+
+The file mcp_server_sse is a copy of the stdio file intended for hosting on servers. You probably don't want to do this, but we include it for reference.
+
+To run it, just run python3 mcp_server_sse.py
 
 
 ## Using with Cursor
@@ -35,27 +41,9 @@ Cursor automatically communicates with this MCP server over stdio when you invok
 
 ### Configuring MCP Server with .cursor/mcp.json
 
-To configure Cursor to use this MCP server, add a `.cursor/mcp.json` file to your project root with the following content.
+To configure Cursor to use this MCP server, add a `.cursor/mcp.json` to your project, with the contents of the mcp.json from this repo.
 
-```json
-{
-  "mcpServers": {
-    "python-mcp-server": {
-      "command": "python3",
-      "args": ["/{path_to_this_repo}/mcp_server.py"],
-      "env": {}
-    }
-  }
-}
-```
-
-- `mcpServers`: A mapping of server names to their configuration.
-- `python-mcp-server`: The name for this MCP server configuration (you can choose any name).
-- `command`: The executable to launch the server (here, `python3`).
-- `args`: Arguments to pass to the command (the path to your `mcp_server.py`).
-- `env`: (Optional) Environment variables to set when launching the server.
-
-Once this file is in place, Cursor will automatically launch and manage the MCP server as needed. Simply use MCP features in Cursor, and all communication and error handling will be managed automatically.
+This will add both the stdio and sse versions of the server. You probably don't want both.
 
 ## MCP Endpoint
 
