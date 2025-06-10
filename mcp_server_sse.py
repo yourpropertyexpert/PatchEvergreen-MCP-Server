@@ -1,5 +1,8 @@
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 import requests
+import os
+
+os.environ['HOST'] = '0.0.0.0'
 
 mcp = FastMCP("PEG")
 
@@ -12,4 +15,4 @@ def get_issues_for_library(library: str, language: str) -> dict:
     response.raise_for_status()
     return response.json()
 
-mcp.run(transport="sse")
+mcp.run(transport="sse", host="0.0.0.0", port=8000)
