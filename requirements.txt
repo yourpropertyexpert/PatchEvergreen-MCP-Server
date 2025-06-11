@@ -1,4 +1,4 @@
 requests==2.31.0
 flask==3.0.2
 python-dotenv==1.1.0
-mcp==1.9.3
+fastmcp==2.8.0
