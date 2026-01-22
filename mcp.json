@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "patchevergreen-stdio": {
+      "command": "python3",
+      "args": ["mcp_server.py"]
+    },
+    "patchevergreen-sse": {
+      "url": "http://localhost:8000/sse"
+    }
+  }
+}
