@@ -14,8 +14,9 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
-# Install Python dependencies (Flask only needs flask, but install all for consistency)
-RUN pip3 install --no-cache-dir flask==3.0.2
+# Install Python dependencies from requirements.txt
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir -r requirements.txt
 
 # Copy Flask server and Skill file
 COPY flask_server_only.py .

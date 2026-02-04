@@ -40,6 +40,5 @@ ENV/
 Thumbs.db
 
 # Docker
-Docker/
 docker-compose.yml
 .dockerignore
