@@ -1,8 +1,18 @@
 from fastmcp import FastMCP
 import requests
 import os
+from flask import Flask, Response, jsonify
+from threading import Thread
+from pathlib import Path
 
 os.environ['HOST'] = '0.0.0.0'
+
+# Initialize Flask app for serving Skill file
+app = Flask(__name__)
+
+# Get the directory where this script is located
+SCRIPT_DIR = Path(__file__).parent
+SKILL_FILE = SCRIPT_DIR / "SKILL.md"
 
 # Initialize FastMCP server with proper description and capabilities
 mcp = FastMCP(
@@ -246,4 +256,82 @@ Create a concise compatibility impact summary for {library} ({language}) using P
 
 Use get_issues_for_library to fetch breaking changes data and focus on practical compatibility concerns that developers need to address."""
 
-mcp.run(transport="sse", host="0.0.0.0", port=8000)
+# HTTP endpoints for Skill access
+@app.route('/.well-known/skill', methods=['GET'])
+@app.route('/api/skill', methods=['GET'])
+@app.route('/skill', methods=['GET'])
+def get_skill():
+    """Serve the SKILL.md file for web clients."""
+    if SKILL_FILE.exists():
+        with open(SKILL_FILE, 'r', encoding='utf-8') as f:
+            content = f.read()
+        return Response(content, mimetype='text/markdown; charset=utf-8')
+    else:
+        return jsonify({"error": "Skill file not found"}), 404
+
+@app.route('/.well-known/skill/metadata', methods=['GET'])
+@app.route('/api/skill/metadata', methods=['GET'])
+def get_skill_metadata():
+    """Serve only the YAML frontmatter for skill discovery."""
+    if SKILL_FILE.exists():
+        with open(SKILL_FILE, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Extract YAML frontmatter (between --- markers)
+        if content.startswith('---'):
+            parts = content.split('---', 2)
+            if len(parts) >= 3:
+                frontmatter = parts[1].strip()
+                return Response(frontmatter, mimetype='text/yaml; charset=utf-8')
+        
+        return jsonify({"error": "Invalid skill format"}), 400
+    else:
+        return jsonify({"error": "Skill file not found"}), 404
+
+@app.route('/.well-known/skills', methods=['GET'])
+@app.route('/api/skills', methods=['GET'])
+def list_skills():
+    """List available skills (for discovery)."""
+    if SKILL_FILE.exists():
+        with open(SKILL_FILE, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Extract metadata from frontmatter
+        metadata = {}
+        if content.startswith('---'):
+            parts = content.split('---', 2)
+            if len(parts) >= 3:
+                frontmatter = parts[1]
+                for line in frontmatter.split('\n'):
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        key = key.strip()
+                        value = value.strip().strip('"').strip("'")
+                        if key == 'tags' and value.startswith('['):
+                            # Handle array format
+                            metadata[key] = [t.strip().strip('"').strip("'") for t in value.strip('[]').split(',')]
+                        else:
+                            metadata[key] = value
+        
+        return jsonify({
+            "skills": [{
+                "name": metadata.get("name", "PatchEvergreen Breaking Changes Analyzer"),
+                "description": metadata.get("description", ""),
+                "version": metadata.get("version", "1.0.0"),
+                "url": "/.well-known/skill"
+            }]
+        })
+    else:
+        return jsonify({"skills": []})
+
+def run_flask():
+    """Run Flask server in a separate thread."""
+    app.run(host='0.0.0.0', port=8001, debug=False, use_reloader=False)
+
+if __name__ == "__main__":
+    # Start Flask server in a separate thread for Skill HTTP endpoints
+    flask_thread = Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+    
+    # Run MCP server on main thread
+    mcp.run(transport="sse", host="0.0.0.0", port=8000)
