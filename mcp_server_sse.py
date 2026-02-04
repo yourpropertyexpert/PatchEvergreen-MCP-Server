@@ -18,9 +18,10 @@ SKILL_FILE = SCRIPT_DIR / "SKILL.md"
 mcp = FastMCP(
     name="PatchEvergreen",
     description="MCP server for accessing PatchEvergreen's breaking changes database. "
-                "Fetches breaking changes and compatibility issues between versions "
-                "of programming libraries across multiple languages."
+    "Fetches breaking changes and compatibility issues between versions "
+    "of programming libraries across multiple languages.",
 )
+
 
 @mcp.tool()
 def get_issues_for_library(library: str, language: str) -> dict:
@@ -50,6 +51,7 @@ def get_issues_for_library(library: str, language: str) -> dict:
     response = requests.get(url, params=params, timeout=10)
     response.raise_for_status()
     return response.json()
+
 
 @mcp.prompt()
 def analyze_breaking_changes(library: str, language: str) -> str:
@@ -83,6 +85,7 @@ Your analysis should include:
 Focus on practical, actionable advice that developers can immediately use to plan their upgrade strategy.
 
 Use the get_issues_for_library tool to fetch the latest breaking changes data for {library} in {language}."""
+
 
 @mcp.prompt()
 def dependency_audit_report(project_language: str) -> str:
@@ -136,6 +139,7 @@ Classify each dependency by:
 - Team member assignments
 
 Use the get_issues_for_library tool to fetch breaking changes data for each dependency the user wants to audit."""
+
 
 @mcp.prompt()
 def version_upgrade_planner(library: str, language: str, current_version: str, target_version: str) -> str:
@@ -197,6 +201,7 @@ Create a comprehensive upgrade plan for {library} ({language}) from version {cur
 
 Provide specific, actionable steps that the development team can follow to ensure a safe upgrade process."""
 
+
 @mcp.prompt()
 def compatibility_impact_summary(library: str, language: str) -> str:
     """
@@ -256,6 +261,18 @@ Create a concise compatibility impact summary for {library} ({language}) using P
 
 Use get_issues_for_library to fetch breaking changes data and focus on practical compatibility concerns that developers need to address."""
 
+
+# Expose SKILL.md as an MCP resource
+@mcp.resource(uri="skill://patch-evergreen/SKILL.md")
+def get_skill_resource() -> str:
+    """Get the PatchEvergreen Skill file as an MCP resource."""
+    if SKILL_FILE.exists():
+        with open(SKILL_FILE, 'r', encoding='utf-8') as f:
+            return f.read()
+    else:
+        raise FileNotFoundError("SKILL.md file not found")
+
+
 # HTTP endpoints for Skill access
 @app.route('/.well-known/skill', methods=['GET'])
 @app.route('/api/skill', methods=['GET'])
@@ -269,6 +286,7 @@ def get_skill():
     else:
         return jsonify({"error": "Skill file not found"}), 404
 
+
 @app.route('/.well-known/skill/metadata', methods=['GET'])
 @app.route('/api/skill/metadata', methods=['GET'])
 def get_skill_metadata():
@@ -276,17 +294,18 @@ def get_skill_metadata():
     if SKILL_FILE.exists():
         with open(SKILL_FILE, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         # Extract YAML frontmatter (between --- markers)
         if content.startswith('---'):
             parts = content.split('---', 2)
             if len(parts) >= 3:
                 frontmatter = parts[1].strip()
                 return Response(frontmatter, mimetype='text/yaml; charset=utf-8')
-        
+
         return jsonify({"error": "Invalid skill format"}), 400
     else:
         return jsonify({"error": "Skill file not found"}), 404
+
 
 @app.route('/.well-known/skills', methods=['GET'])
 @app.route('/api/skills', methods=['GET'])
@@ -295,7 +314,7 @@ def list_skills():
     if SKILL_FILE.exists():
         with open(SKILL_FILE, 'r', encoding='utf-8') as f:
             content = f.read()
-        
+
         # Extract metadata from frontmatter
         metadata = {}
         if content.startswith('---'):
@@ -312,26 +331,32 @@ def list_skills():
                             metadata[key] = [t.strip().strip('"').strip("'") for t in value.strip('[]').split(',')]
                         else:
                             metadata[key] = value
-        
-        return jsonify({
-            "skills": [{
-                "name": metadata.get("name", "PatchEvergreen Breaking Changes Analyzer"),
-                "description": metadata.get("description", ""),
-                "version": metadata.get("version", "1.0.0"),
-                "url": "/.well-known/skill"
-            }]
-        })
+
+        return jsonify(
+            {
+                "skills": [
+                    {
+                        "name": metadata.get("name", "PatchEvergreen Breaking Changes Analyzer"),
+                        "description": metadata.get("description", ""),
+                        "version": metadata.get("version", "1.0.0"),
+                        "url": "/.well-known/skill",
+                    }
+                ]
+            }
+        )
     else:
         return jsonify({"skills": []})
+
 
 def run_flask():
     """Run Flask server in a separate thread."""
     app.run(host='0.0.0.0', port=8001, debug=False, use_reloader=False)
 
+
 if __name__ == "__main__":
     # Start Flask server in a separate thread for Skill HTTP endpoints
     flask_thread = Thread(target=run_flask, daemon=True)
     flask_thread.start()
-    
+
     # Run MCP server on main thread
     mcp.run(transport="sse", host="0.0.0.0", port=8000)

@@ -39,11 +39,88 @@ pip3 install -r requirements.txt
 ```
 [If you are using tools like venv or Docker to run Python, you will need to configure them in your normal way.]
 
-## SSE
+## SSE (Server-Sent Events) Hosted Server
 
-The file mcp_server_sse is a copy of the stdio file intended for hosting on servers. You probably don't want to do this, but we include it for reference.
+The file `mcp_server_sse.py` is designed for hosting on external servers. It provides:
 
-To run it, just run python3 mcp_server_sse.py
+1. **MCP Server** (port 8000): SSE transport for MCP protocol communication
+2. **HTTP Skill Endpoints** (port 8001): Serves the SKILL.md file for web clients
+
+### Running the SSE Server
+
+To run it, just run:
+```bash
+python3 mcp_server_sse.py
+```
+
+This starts:
+- MCP server on port 8000 (SSE transport)
+- HTTP server on port 8001 (Skill file access)
+
+### Skill HTTP Endpoints
+
+The SSE server exposes the following HTTP endpoints for web clients to access the Skill:
+
+#### Get Full Skill File
+- `GET /.well-known/skill` - Returns the complete SKILL.md file
+- `GET /api/skill` - Alternative endpoint for skill content
+- `GET /skill` - Simple endpoint for skill content
+
+**Response**: Markdown content with `Content-Type: text/markdown; charset=utf-8`
+
+#### Get Skill Metadata (Discovery)
+- `GET /.well-known/skill/metadata` - Returns only YAML frontmatter for discovery
+- `GET /api/skill/metadata` - Alternative endpoint for metadata
+
+**Response**: YAML frontmatter with `Content-Type: text/yaml; charset=utf-8`
+
+#### List Available Skills
+- `GET /.well-known/skills` - Returns JSON list of available skills
+- `GET /api/skills` - Alternative endpoint for skill listing
+
+**Response**: JSON array with skill metadata:
+```json
+{
+  "skills": [{
+    "name": "PatchEvergreen Breaking Changes Analyzer",
+    "description": "Expert skill for analyzing breaking changes...",
+    "version": "1.0.0",
+    "url": "/.well-known/skill"
+  }]
+}
+```
+
+### Accessing Skills from Web Clients
+
+Web clients (like ClaudeCode, OpenClaw, etc.) can access your Skill by:
+
+1. **Direct HTTP Access**: Fetch the skill from your hosted server:
+   ```
+   https://your-hosted-server.com/.well-known/skill
+   ```
+
+2. **Discovery**: Query the skills endpoint to discover available skills:
+   ```
+   https://your-hosted-server.com/.well-known/skills
+   ```
+
+3. **MCP Resource**: Access via MCP resource URI:
+   ```
+   skill://patch-evergreen/SKILL.md
+   ```
+
+### Example: Using Skill from Web Client
+
+```bash
+# Get skill metadata for discovery
+curl https://your-hosted-server.com/.well-known/skills
+
+# Get full skill file
+curl https://your-hosted-server.com/.well-known/skill
+
+# Get only metadata (faster for discovery)
+curl https://your-hosted-server.com/.well-known/skill/metadata
+```
 
 
 ## Using as a Skill
