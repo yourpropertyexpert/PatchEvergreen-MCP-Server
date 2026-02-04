@@ -1,0 +1,28 @@
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies (Flask only needs flask, but install all for consistency)
+RUN pip3 install --no-cache-dir flask==3.0.2
+
+# Copy Flask server and Skill file
+COPY flask_server_only.py .
+COPY SKILL.md .
+
+# Expose port 8002 for Flask
+EXPOSE 8002
+
+# Run Flask server
+CMD ["python3", "flask_server_only.py"]

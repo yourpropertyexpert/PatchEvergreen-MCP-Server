@@ -31,31 +31,111 @@ Please note that libraries are named as written in their respective ecosystem to
 
 ## Setup
 
-The file mcp_server is a stdio server that assumes you have a working copy of Python 3 installed on your machine.
+The file `mcp_server.py` is a stdio server that assumes you have a working copy of Python 3 installed on your machine.
+
+### Installing Dependencies
 
 Install the required dependencies:
 ```bash
 pip3 install -r requirements.txt
 ```
+
+**Note**: If you encounter issues with `asgiref`, you may need to upgrade it:
+```bash
+pip3 install --upgrade asgiref
+```
+
+The `requirements.txt` specifies `asgiref>=3.8.0` to avoid the yanked 3.7.0 version.
+
 [If you are using tools like venv or Docker to run Python, you will need to configure them in your normal way.]
 
 ## SSE (Server-Sent Events) Hosted Server
 
-The file `mcp_server_sse.py` is designed for hosting on external servers. It provides:
+The file `mcp_server_sse.py` is designed for hosting on external servers. It provides a unified server on a single port (8000) that handles both:
 
-1. **MCP Server** (port 8000): SSE transport for MCP protocol communication
-2. **HTTP Skill Endpoints** (port 8001): Serves the SKILL.md file for web clients
+1. **MCP Server**: SSE transport for MCP protocol communication at `/sse`
+2. **HTTP Skill Endpoints**: Serves the SKILL.md file for web clients
+
+### Prerequisites
+
+Before running the SSE server, ensure all dependencies are installed:
+
+```bash
+# Install all dependencies
+pip3 install -r requirements.txt
+
+# If you encounter asgiref issues, upgrade it
+pip3 install --upgrade asgiref
+```
+
+The `requirements.txt` specifies `asgiref>=3.8.0` to avoid the yanked 3.7.0 version.
 
 ### Running the SSE Server
 
-To run it, just run:
+#### Option 1: Direct Python Execution
+
+To run the unified server directly:
 ```bash
 python3 mcp_server_sse.py
 ```
 
-This starts:
-- MCP server on port 8000 (SSE transport)
-- HTTP server on port 8001 (Skill file access)
+This starts a single server on port 8000 that handles:
+- MCP SSE protocol at `/sse`
+- Skill file endpoints at `/.well-known/skill`, `/api/skill`, etc.
+- All routing is handled internally in Python - no nginx or reverse proxy needed!
+
+#### Option 2: Docker Compose (Recommended for Production)
+
+For easy deployment and consistency, use Docker Compose:
+
+```bash
+# Build and start the container (logs will be shown in terminal)
+docker compose up
+
+# To stop the container, press Ctrl+C or in another terminal:
+docker compose down
+```
+
+The container will:
+- Build the Docker image with all dependencies
+- Run the server on port 8000
+- Automatically restart if it crashes
+- Include health checks
+
+Access the server at `http://localhost:8000` (or your server's IP address).
+
+#### Option 3: Docker (Manual)
+
+If you prefer to use Docker directly:
+
+```bash
+# Build the image
+docker build -f Docker/Dockerfile -t patchevergreen-mcp .
+
+# Run the container
+docker run -d -p 8000:8000 --name patchevergreen-mcp-server patchevergreen-mcp
+
+# View logs
+docker logs -f patchevergreen-mcp-server
+
+# Stop the container
+docker stop patchevergreen-mcp-server
+docker rm patchevergreen-mcp-server
+
+### Single Port Operation
+
+The server runs everything on a single port (8000) using Python's uvicorn ASGI server with internal routing:
+
+- **MCP SSE**: Handles `/sse` endpoint for MCP protocol
+- **Skill endpoints**: Handles all other routes (`.well-known/skill`, `/api/skill`, etc.)
+
+All routing is handled internally by the Python server - no nginx or reverse proxy needed!
+
+When you run `python3 mcp_server_sse.py`, both services are available on port 8000:
+- MCP SSE: `http://localhost:8000/sse`
+- Skill file: `http://localhost:8000/.well-known/skill`
+- Skill metadata: `http://localhost:8000/.well-known/skill/metadata`
+- Skills list: `http://localhost:8000/.well-known/skills`
 
 ### Skill HTTP Endpoints
 

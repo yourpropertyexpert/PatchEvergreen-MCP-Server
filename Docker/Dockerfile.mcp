@@ -1,0 +1,32 @@
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV HOST=0.0.0.0
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+
+# Install Python dependencies
+# CRITICAL: Install pydantic FIRST with specific version to avoid fastmcp compatibility issues
+# This must be done before installing fastmcp to ensure compatibility
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir "pydantic==2.9.2" && \
+    pip3 install --no-cache-dir "fastmcp==2.8.0" "requests==2.31.0" "uvicorn==0.30.0" "asgiref>=3.8.0"
+
+# Copy MCP server file
+COPY mcp_server_only.py .
+
+# Expose port 8001 for MCP SSE
+EXPOSE 8001
+
+# Run FastMCP SSE server
+CMD ["python3", "mcp_server_only.py"]
