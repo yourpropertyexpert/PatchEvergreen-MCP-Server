@@ -251,5 +251,6 @@ Use get_issues_for_library to fetch breaking changes data and focus on practical
 
 if __name__ == "__main__":
     # Run FastMCP SSE server on port 8001
+    # FastMCP SSE serves at root path by default
     print("Starting FastMCP SSE server on port 8001...")
     mcp.run(transport="sse", host="0.0.0.0", port=8001)
