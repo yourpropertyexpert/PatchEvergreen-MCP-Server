@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - PatchEvergreen MCP Server</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 2.5em;
+        }
+
+        .error-code {
+            font-size: 4em;
+            font-weight: bold;
+            color: #764ba2;
+            margin: 20px 0;
+        }
+
+        .endpoints {
+            margin-top: 30px;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .endpoint-method {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .endpoint-path {
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #764ba2;
+            font-weight: bold;
+        }
+
+        .endpoint-path a {
+            color: #764ba2;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .endpoint-path a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+
+        .endpoint-desc {
+            margin-top: 8px;
+            color: #666;
+        }
+
+        .section-title {
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="error-code">404</div>
+        <h1>Page Not Found</h1>
+        <p>The requested URL was not found on this server.</p>
+
+        <div class="endpoints">
+            <div class="section-title">Available Endpoints</div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/sse">/sse</a></span>
+                <div class="endpoint-desc">
+                    MCP Server-Sent Events endpoint for Model Context Protocol communication.
+                    Used by MCP clients to establish SSE connections for tool and resource access.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/.well-known/skill">/.well-known/skill</a></span>
+                <div class="endpoint-desc">
+                    Returns the complete PatchEvergreen Skill file (SKILL.md) with workflow instructions
+                    and expertise for analyzing breaking changes in programming libraries.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/.well-known/skill/metadata">/.well-known/skill/metadata</a></span>
+                <div class="endpoint-desc">
+                    Returns only the YAML frontmatter metadata from the Skill file.
+                    Useful for skill discovery without loading the full content.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/.well-known/skills">/.well-known/skills</a></span>
+                <div class="endpoint-desc">
+                    Returns a JSON list of available skills with metadata (name, description, version).
+                    Used by tools to discover and list available skills.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/api/skill">/api/skill</a></span>
+                <div class="endpoint-desc">
+                    Alternative endpoint for accessing the complete Skill file.
+                    Same content as <code>/.well-known/skill</code>.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/api/skill/metadata">/api/skill/metadata</a></span>
+                <div class="endpoint-desc">
+                    Alternative endpoint for Skill metadata.
+                    Same content as <code>/.well-known/skill/metadata</code>.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/api/skills">/api/skills</a></span>
+                <div class="endpoint-desc">
+                    Alternative endpoint for skills list.
+                    Same content as <code>/.well-known/skills</code>.
+                </div>
+            </div>
+
+            <div class="endpoint">
+                <span class="endpoint-method">GET</span>
+                <span class="endpoint-path"><a href="/skill">/skill</a></span>
+                <div class="endpoint-desc">
+                    Simple endpoint for accessing the Skill file.
+                    Same content as <code>/.well-known/skill</code>.
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #999; font-size: 0.9em;">
+            <p>PatchEvergreen MCP Server & Skill</p>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+services:
+  # FastMCP SSE server - handles MCP protocol at /sse
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.mcp
+    container_name: patchevergreen-mcp-server
+    environment:
+      - HOST=0.0.0.0
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - patchevergreen-network
+    # No external ports - accessed via nginx
+
+  # Flask server - handles Skill endpoints
+  flask-server:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.flask
+    container_name: patchevergreen-flask-server
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import requests; requests.get('http://localhost:8002/.well-known/skills', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - patchevergreen-network
+    # No external ports - accessed via nginx
+
+  # Nginx reverse proxy - routes requests to appropriate backend
+  nginx:
+    image: nginx:alpine
+    container_name: patchevergreen-nginx
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/404.html:/usr/share/nginx/html/404.html:ro
+    depends_on:
+      - mcp-server
+      - flask-server
+    restart: unless-stopped
+    networks:
+      - patchevergreen-network
+
+networks:
+  patchevergreen-network:
+    driver: bridge
