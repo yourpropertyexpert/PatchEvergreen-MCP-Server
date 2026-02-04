@@ -27,7 +27,7 @@ COPY SKILL.md .
 COPY mcp_server.py .
 
 # Expose port 8000
-EXPOSE 8000d
+EXPOSE 8000
 
 # Health check - verify the server is responding
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
