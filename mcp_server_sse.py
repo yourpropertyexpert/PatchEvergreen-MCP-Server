@@ -16,7 +16,12 @@ SCRIPT_DIR = Path(__file__).parent
 SKILL_FILE = SCRIPT_DIR / "SKILL.md"
 
 # Initialize FastMCP server
-mcp = FastMCP("PatchEvergreen")
+mcp = FastMCP(
+    name="PatchEvergreen",
+    instructions="MCP server for accessing PatchEvergreen's breaking changes database. "
+                 "Fetches breaking changes and compatibility issues between versions "
+                 "of programming libraries across multiple languages."
+)
 
 
 @mcp.tool()

@@ -2,7 +2,12 @@ from fastmcp import FastMCP
 import requests
 
 # Initialize FastMCP server
-mcp = FastMCP("PatchEvergreen")
+mcp = FastMCP(
+    name="PatchEvergreen",
+    instructions="MCP server for accessing PatchEvergreen's breaking changes database. "
+                 "Fetches breaking changes and compatibility issues between versions "
+                 "of programming libraries across multiple languages."
+)
 
 
 @mcp.tool()
