@@ -9,6 +9,21 @@ SCRIPT_DIR = Path(__file__).parent
 SKILL_FILE = SCRIPT_DIR / "SKILL.md"
 
 
+@app.route('/', methods=['GET'])
+def index():
+    """Service discovery for browsers and health checks."""
+    return jsonify(
+        {
+            "service": "PatchEvergreen MCP Server",
+            "endpoints": {
+                "mcp_sse": "/sse",
+                "skills": "/.well-known/skills",
+                "skill": "/.well-known/skill",
+            },
+        }
+    )
+
+
 @app.route('/.well-known/skill', methods=['GET'])
 @app.route('/api/skill', methods=['GET'])
 @app.route('/skill', methods=['GET'])
